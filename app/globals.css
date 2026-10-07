@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* BORA OS · tokens. Cinzas neutros e um sinal só: o verde #CEFF00.
+   No tema claro o verde nunca é texto nem linha sobre branco: só preenchimento atrás de preto. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-2: #18181b;
+  --surface-3: #1f1f23;
+  --line: #232327;
+  --line-strong: #34343a;
+  --fg: #ededef;
+  --fg-2: #a1a1aa;
+  --fg-3: #6b6b75;
+  --signal: #ceff00;
+  --signal-ink: #000000;
+  --signal-text: #ceff00;
+  --signal-soft: rgba(206, 255, 0, 0.1);
+  --active: #ceff00;
+  --danger: #e5484d;
+  --danger-soft: rgba(229, 72, 77, 0.12);
+  --warning: #d6a243;
+  --warning-soft: rgba(214, 162, 67, 0.12);
+  --chart-1: #ceff00;
+  --chart-2: #71717a;
+  --chart-3: #3f3f46;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f5f5f1;
+  --surface-2: #ebebe6;
+  --surface-3: #e2e2dc;
+  --line: rgba(0, 0, 0, 0.12);
+  --line-strong: rgba(0, 0, 0, 0.32);
+  --fg: #000000;
+  --fg-2: rgba(0, 0, 0, 0.66);
+  --fg-3: rgba(0, 0, 0, 0.46);
+  --signal: #ceff00;
+  --signal-ink: #000000;
+  --signal-text: #5c6e00;
+  --signal-soft: rgba(206, 255, 0, 0.45);
+  --active: #000000;
+  --danger: #ce2c31;
+  --danger-soft: rgba(206, 44, 49, 0.08);
+  --warning: #a86a00;
+  --warning-soft: rgba(168, 106, 0, 0.1);
+  --chart-1: #000000;
+  --chart-2: #a1a1aa;
+  --chart-3: #d4d4d8;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-signal-text: var(--signal-text);
+  --color-signal-soft: var(--signal-soft);
+  --color-active: var(--active);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+.mono,
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+::selection {
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+:focus-visible {
+  outline: 1px solid var(--active);
+  outline-offset: 1px;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+@layer base {
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--active);
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
