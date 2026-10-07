@@ -44,29 +44,29 @@ export function LeadFilters({ sp, allowed, canPii, canCreate, canExport, total }
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[260px] flex-1">
+      <div className="grid grid-cols-2 items-center gap-2 md:flex md:flex-wrap [&>select]:w-full md:[&>select]:w-auto">
+        <div className="relative col-span-2 min-w-0 flex-1 md:min-w-[260px]">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-3" />
           <input value={q} onChange={(e) => setQ(e.target.value)} className={cx(inputCls, "pl-8")}
             placeholder={canPii ? "Nome, BORA ID, código, cidade, e-mail, telefone ou CPF" : "Nome, BORA ID, código ou cidade"} />
         </div>
-        <select value={sp.uf ?? ""} onChange={(e) => set({ uf: e.target.value || null, page: null })} className="h-8 rounded-sm border border-line-strong bg-surface px-2 text-[12px]" aria-label="UF">
+        <select value={sp.uf ?? ""} onChange={(e) => set({ uf: e.target.value || null, page: null })} className="h-10 md:h-8 rounded-[10px] md:rounded-sm border border-line-strong bg-surface px-2 text-[12px]" aria-label="UF">
           <option value="">{allowed?.length ? "Meu escopo" : "Todas as UFs"}</option>
           {(allowed?.length ? allowed : UFS).map((u) => <option key={u}>{u}</option>)}
         </select>
-        <select value={sp.origem ?? ""} onChange={(e) => set({ origem: e.target.value || null, page: null })} className="h-8 rounded-sm border border-line-strong bg-surface px-2 text-[12px]" aria-label="Fonte">
+        <select value={sp.origem ?? ""} onChange={(e) => set({ origem: e.target.value || null, page: null })} className="h-10 md:h-8 rounded-[10px] md:rounded-sm border border-line-strong bg-surface px-2 text-[12px]" aria-label="Fonte">
           <option value="">Toda fonte</option>
           {["instagram", "meta", "whatsapp", "google", "tiktok", "(direto)"].map((s) => <option key={s}>{s}</option>)}
         </select>
         {TRI.map((t) => (
           <select key={t.key} value={sp[t.key] ?? ""} onChange={(e) => set({ [t.key]: e.target.value || null, page: null })}
-            className={cx("h-8 rounded-sm border bg-surface px-2 text-[12px]", sp[t.key] ? "border-active text-fg" : "border-line-strong text-fg-2")} aria-label={t.label}>
+            className={cx("h-10 md:h-8 rounded-[10px] md:rounded-sm border bg-surface px-2 text-[12px]", sp[t.key] ? "border-active text-fg" : "border-line-strong text-fg-2")} aria-label={t.label}>
             <option value="">{t.label}: todos</option>
             <option value="true">{t.label}: sim</option>
             <option value="false">{t.label}: não</option>
           </select>
         ))}
-        <div className="ml-auto flex gap-2">
+        <div className="col-span-2 flex gap-2 md:ml-auto [&>*]:flex-1 md:[&>*]:flex-none">
           {canExport && <Button onClick={doExport} disabled={busy || total === 0}><Download size={14} />{busy ? "Exportando…" : "Exportar"}</Button>}
           {canCreate && <LinkButton href="/builder/cadastros/novo" variant="primary"><Plus size={14} />Novo cadastro</LinkButton>}
         </div>

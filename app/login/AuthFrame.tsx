@@ -2,13 +2,13 @@ import { Logo } from "@/components/Logo";
 
 export function AuthFrame({ step, title, desc, children }: { step: string; title: string; desc?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <main className="grid min-h-dvh place-items-center bg-bg px-4 py-10">
+    <main className="grid min-h-dvh place-items-center bg-bg px-4 py-10 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       <div className="w-full max-w-[380px]">
-        <div className="mb-8 flex items-center justify-between">
-          <Logo />
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <Logo height={26} />
           <span className="eyebrow">{step}</span>
         </div>
-        <div className="rounded-md border border-line bg-surface p-6">
+        <div className="rounded-[14px] border border-line bg-surface p-6 md:rounded-md">
           <h1 className="text-[17px] font-semibold tracking-tight">{title}</h1>
           {desc && <div className="mt-1.5 text-fg-2">{desc}</div>}
           <div className="mt-5">{children}</div>

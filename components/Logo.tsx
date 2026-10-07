@@ -1,20 +1,28 @@
-// Marca do BORA OS: escudo com raio (desenho simplificado do símbolo) + "BORA OS".
+// Marca oficial da BORA (arquivos do kit de identidade 2026, os mesmos da LP).
+// Duas versões em cada lugar: branca no tema escuro, preta no claro. O CSS mostra só a do tema ativo.
+/* eslint-disable @next/next/no-img-element */
+
+/** Símbolo: o escudo com o raio. */
 export function Shield({ size = 22 }: { size?: number }) {
+  const h = Math.round(size * 1.275);
   return (
-    <svg width={size} height={size * 1.25} viewBox="0 0 40 50" aria-hidden>
-      <path d="M20 1 38 7v17c0 12-8 20-18 25C10 44 2 36 2 24V7L20 1Z" fill="var(--fg)" />
-      <path d="M23 9 11 28h8l-3 13 13-20h-8l2-12Z" fill="var(--signal)" />
-    </svg>
+    <span className="inline-flex" style={{ width: size, height: h }}>
+      <img src="/brand/simbolo-white.png" alt="" width={size} height={h} className="theme-dark-only h-full w-full object-contain" />
+      <img src="/brand/simbolo-black.png" alt="" width={size} height={h} className="theme-light-only h-full w-full object-contain" />
+    </span>
   );
 }
 
-export function Logo() {
+/** Logotipo BORA + "OS". */
+export function Logo({ height = 16 }: { height?: number }) {
+  const w = Math.round(height * 3.9);
   return (
-    <span className="flex items-center gap-2.5">
-      <Shield size={18} />
-      <span className="text-[14px] font-bold tracking-[0.02em] text-fg">
-        BORA <span className="mono font-medium text-fg-3">OS</span>
+    <span className="flex items-center gap-2" aria-label="BORA OS">
+      <span className="inline-flex" style={{ width: w, height }}>
+        <img src="/brand/logo-white.png" alt="BORA" width={w} height={height} className="theme-dark-only h-full w-full object-contain" />
+        <img src="/brand/logo-black.png" alt="BORA" width={w} height={height} className="theme-light-only h-full w-full object-contain" />
       </span>
+      <span className="mono text-[12px] font-medium tracking-[0.08em] text-fg-3" style={{ lineHeight: `${height}px` }}>OS</span>
     </span>
   );
 }

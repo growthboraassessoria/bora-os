@@ -5,6 +5,7 @@ import { filtersFrom } from "@/lib/leadFilters";
 import { boraId, num, date, phone } from "@/lib/format";
 import { Chip, Empty, th, td, cx } from "@/components/ui";
 import { Avatar } from "@/components/Avatar";
+import { ChevronRight } from "lucide-react";
 import { LeadFilters } from "./LeadFilters";
 import { Inspector } from "./Inspector";
 
@@ -52,16 +53,41 @@ export default async function Cadastros({ searchParams }: { searchParams: Promis
         <div className="border-b border-line p-4 md:px-6">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">Builder · Cadastros</p>
+              <p className="eyebrow max-md:hidden">Builder · Cadastros</p>
               <h1 className="mt-1 text-[20px] font-semibold tracking-tight">{num(res.total)} {res.total === 1 ? "cadastro" : "cadastros"}</h1>
             </div>
-            <Chip tone="outline">contato mascarado{a.perms.has("builder.leads.pii") ? " · revele na ficha" : ""}</Chip>
+            <Chip tone="outline" className="max-md:hidden">contato mascarado{a.perms.has("builder.leads.pii") ? " · revele na ficha" : ""}</Chip>
           </div>
           <LeadFilters sp={sp} allowed={a.ufs} canPii={a.perms.has("builder.leads.pii")} canCreate={a.perms.has("builder.leads.create")} canExport={a.perms.has("builder.leads.export")} total={res.total} />
           {error && <p className="mt-2 text-danger">{error}</p>}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-auto">
+        {/* Celular: lista no estilo iOS */}
+        <ul className="divide-y divide-line md:hidden">
+          {res.rows.map((r) => (
+            <li key={r.id}>
+              <Link href={href(sp, { id: r.id })} scroll={false} className={cx("press flex items-center gap-3 px-4 py-3", sp.id === r.id && "bg-surface-2")}>
+                <Avatar url={r.anonymized_at ? null : r.photo_url} name={`${r.first_name} ${r.last_name}`} size={40} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="truncate text-[15px] font-medium text-fg">{r.anonymized_at ? "Anonimizado" : `${r.first_name} ${r.last_name}`}</span>
+                    <span className="mono shrink-0 text-[11px] text-fg-3">{date(r.created_at)}</span>
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-1.5 text-[13px] text-fg-2">
+                    <span className="mono text-fg-3">{boraId(r.bora_number)}</span>
+                    <span className="truncate">{r.city} · {r.state}</span>
+                    {r.founder && <Chip tone="signal">fundador</Chip>}
+                    {r.referred_by && <Chip>indicado</Chip>}
+                  </span>
+                </span>
+                <ChevronRight size={16} className="shrink-0 text-fg-3" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {!res.rows.length && !error && <div className="md:hidden"><Empty title="Nenhum cadastro com esses filtros." /></div>}
+
+        <div className="hidden min-h-0 flex-1 overflow-auto md:block">
           <table className="w-full min-w-[920px]">
             <thead className="sticky top-0 z-10 bg-bg">
               <tr>
@@ -106,7 +132,7 @@ export default async function Cadastros({ searchParams }: { searchParams: Promis
           {!res.rows.length && !error && <Empty title="Nenhum cadastro com esses filtros." />}
         </div>
 
-        <div className="flex h-11 shrink-0 items-center justify-between border-t border-line px-4 md:px-6">
+        <div className="flex h-12 shrink-0 items-center justify-between border-t border-line px-4 md:h-11 md:px-6">
           <p className="mono text-[11px] text-fg-3">página {page} de {pages}</p>
           <div className="flex gap-1">
             <Link aria-disabled={page <= 1} href={href(sp, { page: String(page - 1) })} scroll={false} className={cx("rounded-sm border border-line-strong px-2.5 py-1 text-[12px]", page <= 1 && "pointer-events-none opacity-40")}>Anterior</Link>
@@ -116,7 +142,7 @@ export default async function Cadastros({ searchParams }: { searchParams: Promis
       </div>
 
       {selected && (
-        <div className="fixed inset-0 z-30 xl:static xl:z-auto">
+        <div className="fixed inset-0 z-50 max-xl:[animation:sheet-up_280ms_cubic-bezier(0.32,0.72,0,1)] max-md:pt-[env(safe-area-inset-top)] max-md:bg-surface xl:static xl:z-auto">
           <Inspector key={selected.id + (selected.updated_at ?? "")} lead={selected} closeHref={closeHref}
             perms={{ edit: a.perms.has("builder.leads.edit"), anonymize: a.perms.has("builder.leads.anonymize"), pii: a.perms.has("builder.leads.pii") }} />
         </div>

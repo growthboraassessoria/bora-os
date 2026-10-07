@@ -25,35 +25,35 @@ export type AuthState =
 /** Estado da sessão, uma vez por requisição. */
 export const getAuth = cache(async (): Promise<AuthState> => {
   const db = await createClient();
-  const { data: u } = await db.auth.getUser();
+  // Em paralelo: o Auth confirma o usuário (getUser) e o banco devolve membro, permissões, papéis e escopo numa chamada só.
+  // O nível (aal) sai do próprio token, sem ida à rede.
+  const [{ data: u }, { data: aal }, { data: ctx }] = await Promise.all([
+    db.auth.getUser(),
+    db.auth.mfa.getAuthenticatorAssuranceLevel(),
+    db.schema("os").rpc("my_context"),
+  ]);
   if (!u.user) return { stage: "anon" };
 
-  const { data: aal } = await db.auth.mfa.getAuthenticatorAssuranceLevel();
-  const { data: m } = await db.schema("os").from("members").select("user_id,email,full_name,status,must_change_password").eq("user_id", u.user.id).maybeSingle<Member>();
-
   if (aal?.currentLevel !== "aal2") {
-    // Antes do segundo fator o RLS não libera nem o próprio registro; o status vem do Auth.
-    const member: Member = m ?? { user_id: u.user.id, email: u.user.email ?? "", full_name: (u.user.user_metadata?.full_name as string) ?? "", status: "active", must_change_password: false };
+    // Antes do segundo fator o banco não libera nada; o nome vem do Auth.
+    const member: Member = { user_id: u.user.id, email: u.user.email ?? "", full_name: (u.user.user_metadata?.full_name as string) ?? "", status: "active", must_change_password: false };
     const hasTotp = (u.user.factors ?? []).some((f) => f.factor_type === "totp" && f.status === "verified");
     return { stage: hasTotp ? "verify" : "enroll", db, member };
   }
+  const c = ctx as { member: Member | null; perms: string[]; roles: string[]; ufs: string[] | null } | null;
+  const m = c?.member;
   if (!m || m.status !== "active") return { stage: "no-member", db };
   if (m.must_change_password) return { stage: "password", db, member: m };
 
-  const [{ data: perms }, { data: roles }, { data: scope }] = await Promise.all([
-    db.schema("os").rpc("my_permissions"),
-    db.schema("os").from("member_roles").select("roles(name)").eq("user_id", m.user_id),
-    db.schema("os").from("member_scopes").select("ufs").eq("user_id", m.user_id).maybeSingle<{ ufs: string[] | null }>(),
-  ]);
   const methods = (aal.currentAuthenticationMethods ?? []) as { method: string; timestamp: number }[];
   const totp = methods.filter((x) => typeof x === "object" && x.method === "totp").map((x) => x.timestamp);
   return {
     stage: "ok",
     db,
     member: m,
-    perms: new Set((perms as string[] | null) ?? []),
-    roles: ((roles ?? []) as unknown as { roles: { name: string } | null }[]).map((r) => r.roles?.name ?? "").filter(Boolean),
-    ufs: scope?.ufs ?? null,
+    perms: new Set(c.perms ?? []),
+    roles: c.roles ?? [],
+    ufs: c.ufs ?? null,
     totpAt: totp.length ? Math.max(...totp) : null,
   };
 });

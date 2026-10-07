@@ -1,7 +1,7 @@
 "use client";
 import { useSetParam } from "@/components/builder/Filters";
 
-const sel = "h-8 rounded-sm border border-line-strong bg-surface px-2 text-[12px]";
+const sel = "h-10 md:h-8 rounded-[10px] md:rounded-sm border border-line-strong bg-surface px-2 text-[12px]";
 
 export function AuditFilters({ sp, members, actions, entities }: { sp: Record<string, string | undefined>; members: { id: string; name: string }[]; actions: Record<string, string>; entities: Record<string, string> }) {
   const set = useSetParam();

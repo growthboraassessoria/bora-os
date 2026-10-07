@@ -20,10 +20,10 @@ export function useSetParam() {
 export function PeriodPicker({ value }: { value: string }) {
   const set = useSetParam();
   return (
-    <div className="flex h-8 overflow-hidden rounded-sm border border-line-strong" role="group" aria-label="Período">
+    <div className="flex h-10 overflow-hidden rounded-[10px] border border-line-strong max-md:w-full md:h-8 md:rounded-sm" role="group" aria-label="Período">
       {PERIODS.map((p) => (
         <button key={p.id} onClick={() => set({ p: p.id })}
-          className={cx("mono px-2.5 text-[11px] uppercase tracking-[0.06em] text-fg-3 hover:text-fg", value === p.id && "bg-surface-3 text-fg")}>
+          className={cx("mono px-2.5 text-[11px] uppercase tracking-[0.06em] text-fg-3 hover:text-fg max-md:flex-1", value === p.id && "bg-surface-3 text-fg")}>
           {p.label}
         </button>
       ))}
@@ -36,7 +36,7 @@ export function UfPicker({ value, allowed }: { value?: string; allowed?: string[
   const list = allowed?.length ? allowed : UFS;
   return (
     <select value={value ?? ""} onChange={(e) => set({ uf: e.target.value || null })} aria-label="UF"
-      className="h-8 rounded-sm border border-line-strong bg-surface px-2 text-[12px] text-fg">
+      className="h-10 md:h-8 rounded-[10px] md:rounded-sm border border-line-strong bg-surface px-2 text-[12px] text-fg">
       <option value="">{allowed?.length ? "Meu escopo" : "Todas as UFs"}</option>
       {list.map((u) => <option key={u} value={u}>{u}</option>)}
     </select>

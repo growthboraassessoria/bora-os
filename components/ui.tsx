@@ -27,12 +27,12 @@ export function Panel({ title, eyebrow, right, children, className, pad = true }
 export function PageHead({ eyebrow, title, desc, right }: { eyebrow: string; title: string; desc?: string; right?: React.ReactNode }) {
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
+      <div className="max-md:w-full">
+        <p className="eyebrow max-md:hidden">{eyebrow}</p>
         <h1 className="mt-1 text-[20px] font-semibold tracking-tight text-fg">{title}</h1>
         {desc && <p className="mt-1 max-w-2xl text-fg-2">{desc}</p>}
       </div>
-      {right && <div className="flex flex-wrap items-center gap-2">{right}</div>}
+      {right && <div className="flex flex-wrap items-center gap-2 max-md:w-full">{right}</div>}
     </div>
   );
 }
@@ -75,7 +75,7 @@ export function Chip({ children, tone = "neutral", className }: { children: Reac
 }
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-const BTN = "inline-flex h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 text-[12px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40";
+const BTN = "press inline-flex h-10 md:h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 text-[12px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40";
 const VAR: Record<Variant, string> = {
   primary: "bg-signal text-signal-ink hover:brightness-95",
   secondary: "border border-line-strong bg-surface text-fg hover:bg-surface-2",
@@ -94,7 +94,7 @@ export function LinkButton({ variant = "secondary", className, href, children, .
 }
 
 export const inputCls =
-  "h-8 w-full rounded-sm border border-line-strong bg-bg px-2.5 text-[13px] text-fg placeholder:text-fg-3 outline-none focus:border-active disabled:opacity-50";
+  "h-11 md:h-8 w-full rounded-[10px] md:rounded-sm border border-line-strong bg-bg px-3 md:px-2.5 text-[13px] text-fg placeholder:text-fg-3 outline-none focus:border-active disabled:opacity-50";
 
 export function Field({ label, hint, error, children, className }: { label: string; hint?: string; error?: string; children: React.ReactNode; className?: string }) {
   return (

@@ -6,7 +6,7 @@ import { Dialog } from "radix-ui";
 import { quickSearch, type QuickHit } from "./actions";
 import { boraId } from "@/lib/format";
 
-export function CommandK({ canPii }: { canPii: boolean }) {
+export function CommandK({ canPii, compact = false }: { canPii: boolean; compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<QuickHit[]>([]);
@@ -16,6 +16,7 @@ export function CommandK({ canPii }: { canPii: boolean }) {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
+    if (compact) return; // o atalho fica só na busca do computador
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -24,10 +25,11 @@ export function CommandK({ canPii }: { canPii: boolean }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [compact]);
 
   useEffect(() => {
     clearTimeout(timer.current);
+    if (q.trim().length < 2) { setHits([]); return; } // sem busca ao abrir a tela
     timer.current = setTimeout(() => start(async () => { setHits(await quickSearch(q)); setSel(0); }), 180);
   }, [q]);
 
@@ -38,14 +40,18 @@ export function CommandK({ canPii }: { canPii: boolean }) {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="flex h-8 w-56 items-center gap-2 rounded-sm border border-line bg-surface px-2.5 text-fg-3 hover:border-line-strong">
-        <Search size={14} />
-        <span className="flex-1 text-left">Buscar cadastro</span>
-        <kbd className="mono rounded-xs border border-line px-1 text-[10px]">⌘K</kbd>
-      </Dialog.Trigger>
+      {compact ? (
+        <Dialog.Trigger className="press grid h-8 w-8 place-items-center text-fg" aria-label="Buscar cadastro"><Search size={19} /></Dialog.Trigger>
+      ) : (
+        <Dialog.Trigger className="flex h-8 w-56 items-center gap-2 rounded-sm border border-line bg-surface px-2.5 text-fg-3 hover:border-line-strong">
+          <Search size={14} />
+          <span className="flex-1 text-left">Buscar cadastro</span>
+          <kbd className="mono rounded-xs border border-line px-1 text-[10px]">⌘K</kbd>
+        </Dialog.Trigger>
+      )}
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-        <Dialog.Content className="fixed left-1/2 top-[12vh] z-50 w-[min(560px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-md border border-line-strong bg-surface shadow-[var(--shadow)]">
+        <Dialog.Content className="fixed inset-x-0 top-0 z-50 overflow-hidden border-line-strong bg-surface pt-[env(safe-area-inset-top)] shadow-[var(--shadow)] md:inset-x-auto md:left-1/2 md:top-[12vh] md:w-[560px] md:-translate-x-1/2 md:rounded-md md:border md:pt-0">
           <Dialog.Title className="sr-only">Buscar cadastro</Dialog.Title>
           <div className="flex items-center gap-2 border-b border-line px-3">
             <Search size={15} className="text-fg-3" />

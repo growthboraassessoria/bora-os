@@ -46,7 +46,7 @@ export function Inspector({ lead, perms, closeHref }: { lead: LeadDetail; perms:
             <p className="text-fg-3">{lead.city} · {lead.state} · desde {date(lead.created_at)}</p>
           </div>
           </div>
-          <Link href={closeHref} scroll={false} className="text-fg-3 hover:text-fg" aria-label="Fechar"><X size={16} /></Link>
+          <Link href={closeHref} scroll={false} className="press -m-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-fg-3 hover:text-fg max-md:bg-surface-3" aria-label="Fechar"><X size={18} /></Link>
         </div>
         <div className="mt-2 flex flex-wrap gap-1">
           {anon && <Chip tone="danger">anonimizado</Chip>}

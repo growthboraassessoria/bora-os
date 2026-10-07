@@ -41,8 +41,10 @@ export async function proxy(req: NextRequest) {
       },
     },
   });
-  // Renova o token se preciso. Não decide acesso: isso é do servidor e do RLS.
-  const { data } = await supabase.auth.getClaims();
+  // Renova o token se estiver vencendo, sem ida à rede no caso comum. Não decide acesso:
+  // isso é do servidor (getUser + os.my_context) e do RLS, a cada tela.
+  const { data: { session } } = await supabase.auth.getSession();
+  const data = { claims: session ? true : null };
 
   const path = req.nextUrl.pathname;
   const isPublic = PUBLIC.some((p) => path === p || path.startsWith(p + "/"));
@@ -60,5 +62,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|brand/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|brand/).*)"],
 };

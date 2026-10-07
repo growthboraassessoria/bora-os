@@ -12,7 +12,8 @@ mkdirSync(OUT, { recursive: true });
 
 const browser = await puppeteer.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true, args: [`--window-size=${W},${H}`] });
 const page = await browser.newPage();
-await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
+await page.setViewport({ width: W, height: H, deviceScaleFactor: process.env.QA_MOBILE ? 3 : 1, isMobile: !!process.env.QA_MOBILE, hasTouch: !!process.env.QA_MOBILE });
+if (process.env.QA_MOBILE) await page.setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1");
 const errors = [];
 page.on("pageerror", (e) => errors.push(`pageerror ${e.message}`));
 page.on("console", (m) => m.type() === "error" && errors.push(`console ${m.text()}`));
@@ -26,7 +27,7 @@ await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.c
 if (process.env.QA_SHOT_LOGIN) await page.screenshot({ path: `${OUT}/codigo.png` });
 const code = new TOTP({ secret: Secret.fromBase32(process.env.QA_TOTP) }).generate();
 await page.type("input[name=code]", code);
-await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.click("button[class*=bg-signal]")]);
+await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.keyboard.press("Enter")]);
 console.log("logado em", page.url());
 
 for (const theme of themes) {
