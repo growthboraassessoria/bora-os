@@ -55,6 +55,21 @@ ok(!nav.includes("Membros") && nav.includes("Cadastros"), "papel Leitura não v�
 await page.goto(`${BASE}/admin/membros`, { waitUntil: "networkidle0" });
 ok(page.url().endsWith("/sem-acesso"), "Admin por URL direta cai em sem acesso");
 
+// Segundo acesso: sai e entra de novo. Tem que pedir só o código, sem configurar de novo nem trocar a senha.
+await page.goto(`${BASE}/conta`, { waitUntil: "networkidle0" });
+await page.evaluate(() => [...document.querySelectorAll("form button")].find((b) => b.title === "Sair" || b.textContent.trim() === "Sair")?.click());
+await page.waitForFunction(() => location.pathname === "/login", { timeout: 15000 }).catch(() => {});
+await page.type("input[name=email]", email);
+await page.type("input[name=password]", pw);
+await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.keyboard.press("Enter")]);
+ok(page.url().endsWith("/login/codigo"), "segundo acesso pede só o código (autenticador ficou salvo)");
+await new Promise((r) => setTimeout(r, 31000)); // próximo código de 30 s
+await page.type("input[name=code]", new TOTP({ secret: Secret.fromBase32(secret2) }).generate());
+await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.keyboard.press("Enter")]);
+ok(page.url().endsWith("/builder"), "entra direto no painel (senha definitiva ficou salva)");
+await page.reload({ waitUntil: "networkidle0" });
+ok(page.url().endsWith("/builder"), "recarregar a página mantém a sessão");
+
 const a = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 await a.auth.admin.deleteUser(out.user_id);
 console.log(`\n${pass} ok · ${fail} falhas`);
