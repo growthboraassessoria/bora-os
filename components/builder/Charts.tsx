@@ -34,6 +34,28 @@ export function DailyChart({ data }: { data: { day: string; leads: number; refer
   );
 }
 
+export function OriginSeries({ data, grain }: { data: { at: string; leads: number; identified: number }[]; grain: "hour" | "day" }) {
+  const rows = data.map((d) => ({
+    ...d,
+    label: grain === "hour" ? `${d.at.slice(11, 13)}h` : `${d.at.slice(8, 10)}/${d.at.slice(5, 7)}`,
+    direct: Math.max(0, d.leads - d.identified),
+  }));
+  return (
+    <div className="h-56 w-full">
+      <ResponsiveContainer>
+        <AreaChart data={rows} margin={{ top: 8, right: 4, bottom: 0, left: -18 }}>
+          <CartesianGrid stroke="var(--line)" vertical={false} />
+          <XAxis dataKey="label" {...axis} minTickGap={24} />
+          <YAxis {...axis} allowDecimals={false} />
+          <Tooltip content={<Tip />} cursor={{ stroke: "var(--line-strong)" }} />
+          <Area type="monotone" dataKey="direct" name="Direto" stackId="1" stroke="var(--chart-2)" fill="var(--chart-3)" fillOpacity={0.6} strokeWidth={1.25} isAnimationActive={false} />
+          <Area type="monotone" dataKey="identified" name="Com UTM" stackId="1" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.35} strokeWidth={1.5} isAnimationActive={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export function HBars({ data, height = 220 }: { data: { label: string; value: number; highlight?: boolean }[]; height?: number }) {
   return (
     <div className="w-full" style={{ height }}>

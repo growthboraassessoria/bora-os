@@ -26,7 +26,7 @@ export function SettingsForm({ settings, site, canEdit, canPublish }: { settings
       <Panel eyebrow="Campanha" title="Metas, checkout e analytics">
         <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); start(async () => { const r = await saveSettings(s, canPublish); setMsg(r.ok ? { ok: true, text: r.data?.note ?? "Salvo." } : { ok: false, text: r.error }); router.refresh(); }); }}>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Meta por cidade" hint="Pessoas para 100% no ranking. Hoje: 500."><input type="number" min={10} max={100000} disabled={!canEdit} value={s.city_goal ?? 500} onChange={(e) => setS({ ...s, city_goal: Number(e.target.value) })} className={`${inputCls} mono`} /></Field>
+            <Field label="Meta por cidade" hint="Pessoas para 100% no ranking. Hoje: 100."><input type="number" min={10} max={100000} disabled={!canEdit} value={s.city_goal ?? 100} onChange={(e) => setS({ ...s, city_goal: Number(e.target.value) })} className={`${inputCls} mono`} /></Field>
             <Field label="Vagas de Fundador por cidade" hint="Founding 50."><input type="number" min={1} max={1000} disabled={!canEdit} value={s.founder_slots ?? 50} onChange={(e) => setS({ ...s, founder_slots: Number(e.target.value) })} className={`${inputCls} mono`} /></Field>
           </div>
           {txt("checkout_url", "Checkout do Fundador", "URL https. Vazio = botão mostra “em breve”.", true)}

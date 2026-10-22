@@ -4,7 +4,7 @@
 // Celular: como um app de iOS — barra de título no topo, abas embaixo e a folha "Mais" com o resto.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Blocks, Cable, ShieldCheck, UserRound, LogOut, Sun, Moon, LayoutDashboard, Users, Share2, Radio, Ellipsis, ChevronRight, X } from "lucide-react";
+import { Blocks, Cable, ShieldCheck, UserRound, LogOut, Sun, Moon, LayoutDashboard, Users, Share2, Radio, Ellipsis, ChevronRight, X, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MODULES, type NavModule } from "./nav";
 import { Shield, Logo } from "../Logo";
@@ -25,12 +25,36 @@ function activeModule(path: string) {
   return MODULES.find((m) => path === m.href || path.startsWith(`/${m.id}`)) ?? MODULES[0];
 }
 
-export function Shell({ perms, name, roles, theme, signOut, children }: { perms: string[]; name: string; roles: string[]; theme: "dark" | "light"; signOut: () => Promise<void>; children: React.ReactNode }) {
+function persistNav(collapsed: boolean) {
+  const secure = typeof location !== "undefined" && location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `bos_nav=${collapsed ? "collapsed" : "open"}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+}
+
+export function Shell({ perms, name, roles, theme, navCollapsed = false, signOut, children }: { perms: string[]; name: string; roles: string[]; theme: "dark" | "light"; navCollapsed?: boolean; signOut: () => Promise<void>; children: React.ReactNode }) {
   const path = usePathname();
   const has = new Set(perms);
   const mod = activeModule(path);
   const [more, setMore] = useState(false);
+  const [collapsed, setCollapsed] = useState(navCollapsed);
+  const toggleNav = () => setCollapsed((v) => {
+    persistNav(!v);
+    return !v;
+  });
   useEffect(() => setMore(false), [path]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "[" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el?.closest("input, textarea, select, [contenteditable=true]")) return;
+      e.preventDefault();
+      setCollapsed((v) => {
+        persistNav(!v);
+        return !v;
+      });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const visible = (m: NavModule) => m.items.some((i) => !i.perm || has.has(i.perm));
   const current = mod.items.find((i) => (i.exact ? path === i.href : path.startsWith(i.href)));
   const crumbs = ["BORA OS", mod.label, current?.label].filter(Boolean);
@@ -74,30 +98,44 @@ export function Shell({ perms, name, roles, theme, signOut, children }: { perms:
       </nav>
 
       {/* ── Computador: navegação do módulo ── */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-line bg-surface md:flex">
-        <div className="flex h-12 items-center border-b border-line px-4"><Logo height={14} /></div>
-        <p className="eyebrow px-4 pb-1 pt-4">{mod.label}</p>
-        <div className="flex-1 overflow-y-auto pb-2">
-          {mod.items.filter((i) => !i.perm || has.has(i.perm)).map((i) => {
-            const on = i.exact ? path === i.href : path.startsWith(i.href);
-            return (
-              <Link key={i.href} href={i.href}
-                className={cx("relative mx-2 flex h-8 items-center rounded-sm px-3 text-fg-2 hover:bg-surface-2 hover:text-fg", on && "bg-surface-2 text-fg")}>
-                {on && <span className="absolute inset-y-1.5 left-0 w-[2px] bg-active" />}
-                {i.label}
-              </Link>
-            );
-          })}
-        </div>
-        <div className="border-t border-line px-4 py-3">
-          <p className="truncate text-fg">{name}</p>
-          <p className="eyebrow mt-0.5 truncate">{roles.join(" · ") || "sem papel"}</p>
-        </div>
-      </aside>
+      {!collapsed && (
+        <aside id="os-nav" className="hidden w-56 shrink-0 flex-col border-r border-line bg-surface md:flex">
+          <div className="flex h-12 items-center justify-between gap-2 border-b border-line px-3">
+            <Logo height={14} />
+            <button type="button" onClick={toggleNav} title="Recolher menu ([)" aria-label="Recolher menu" aria-expanded="true" aria-controls="os-nav"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-sm text-fg-3 hover:bg-surface-2 hover:text-fg">
+              <PanelLeftClose size={16} strokeWidth={1.6} />
+            </button>
+          </div>
+          <p className="eyebrow px-4 pb-1 pt-4">{mod.label}</p>
+          <div className="flex-1 overflow-y-auto pb-2">
+            {mod.items.filter((i) => !i.perm || has.has(i.perm)).map((i) => {
+              const on = i.exact ? path === i.href : path.startsWith(i.href);
+              return (
+                <Link key={i.href} href={i.href}
+                  className={cx("relative mx-2 flex h-8 items-center rounded-sm px-3 text-fg-2 hover:bg-surface-2 hover:text-fg", on && "bg-surface-2 text-fg")}>
+                  {on && <span className="absolute inset-y-1.5 left-0 w-[2px] bg-active" />}
+                  {i.label}
+                </Link>
+              );
+            })}
+          </div>
+          <div className="border-t border-line px-4 py-3">
+            <p className="truncate text-fg">{name}</p>
+            <p className="eyebrow mt-0.5 truncate">{roles.join(" · ") || "sem papel"}</p>
+          </div>
+        </aside>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* ── Computador: barra superior ── */}
         <header className="hidden h-12 shrink-0 items-center gap-3 border-b border-line bg-bg px-4 md:flex">
+          {collapsed && (
+            <button type="button" onClick={toggleNav} title="Abrir menu ([)" aria-label="Abrir menu" aria-expanded="false" aria-controls="os-nav"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-sm text-fg-3 hover:bg-surface-2 hover:text-fg">
+              <PanelLeft size={16} strokeWidth={1.6} />
+            </button>
+          )}
           <p className="mono truncate text-[11px] uppercase tracking-[0.08em] text-fg-3">
             {crumbs.map((c, i) => (
               <span key={i}>
@@ -107,7 +145,7 @@ export function Shell({ perms, name, roles, theme, signOut, children }: { perms:
             ))}
           </p>
           <div className="ml-auto flex items-center gap-3">
-            {has.has("builder.leads.read") && <CommandK canPii={has.has("builder.leads.pii")} />}
+            {has.has("builder.leads.read") && <CommandK canPii={has.has("builder.leads.pii")} perms={perms} />}
             <span className="mono hidden items-center gap-1.5 text-[10.5px] uppercase tracking-[0.08em] text-fg-3 lg:flex">
               <span className="h-1.5 w-1.5 rounded-full bg-signal" /> Sessão protegida
             </span>
@@ -119,7 +157,7 @@ export function Shell({ perms, name, roles, theme, signOut, children }: { perms:
           <div className="flex h-11 items-center gap-3 px-4">
             <Link href="/builder" aria-label="Início" className="press"><Shield size={15} /></Link>
             <p className="min-w-0 flex-1 truncate text-center text-[16px] font-semibold">{current?.label ?? mod.label}</p>
-            {has.has("builder.leads.read") ? <CommandK canPii={has.has("builder.leads.pii")} compact /> : <span className="w-6" />}
+            {has.has("builder.leads.read") ? <CommandK canPii={has.has("builder.leads.pii")} perms={perms} compact /> : <span className="w-6" />}
           </div>
         </header>
 

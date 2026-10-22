@@ -5,9 +5,11 @@ import { signOut } from "../login/actions";
 
 export default async function OsLayout({ children }: { children: React.ReactNode }) {
   const a = await requireSession();
-  const theme = (await cookies()).get("bos_theme")?.value === "light" ? "light" : "dark";
+  const jar = await cookies();
+  const theme = jar.get("bos_theme")?.value === "light" ? "light" : "dark";
+  const navCollapsed = jar.get("bos_nav")?.value === "collapsed";
   return (
-    <Shell perms={[...a.perms]} name={a.member.full_name} roles={a.roles} theme={theme} signOut={signOut}>
+    <Shell perms={[...a.perms]} name={a.member.full_name} roles={a.roles} theme={theme} navCollapsed={navCollapsed} signOut={signOut}>
       {children}
     </Shell>
   );

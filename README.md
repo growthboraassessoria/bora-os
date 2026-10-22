@@ -28,7 +28,8 @@ O BORA OS é o dono das migrations do banco (inclusive as da LP, `0001` a `0003`
 | `0004_os_fundacao` | Membros, papéis, permissões, escopo, auditoria imutável, sessões. Toda permissão exige `aal2`, sessão viva e membro ativo. |
 | `0005_builder` | Sites, páginas, versões, configurações, notas, etiquetas; colunas novas nas tabelas da LP; funções de cadastro, painel, indicações, origem, cidades, qualificação e eventos. |
 | `0006_mcp` | Conexões, ferramentas, chamadas e o gateway (`mcp.describe`, `mcp.call`) com o papel `mcp_gateway`. |
-| `0007`–`0013` | Ajustes: permissões da chave de serviço, busca volátil, `search_path` da função da LP, autoria com `on delete set null`, slug da LP, lista sempre mascarada, funções de admin e os campos da área do membro no OS. |
+| `0007`–`0016` | Ajustes: permissões da chave de serviço, busca volátil, `search_path` da função da LP, autoria com `on delete set null`, slug da LP, lista sempre mascarada, funções de admin, área do membro no OS, contexto numa chamada, grupos de WhatsApp e meta por cidade. |
+| `0017_origem_analise` | Origem: canais, série, jornada primeiro→último, qualidade por fonte e comparação com o período anterior. A tela já funciona sem essa migration; com ela, visitantes e páginas de entrada saem da função. |
 
 ```bash
 supabase link --project-ref <ref>
